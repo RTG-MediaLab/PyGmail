@@ -1,0 +1,12 @@
+# For OSX
+.DS_Store
+
+# The virtualenv used for development
+venv
+
+# Any complied files
+*.pyc
+
+# Development credentials
+client_secret.json
+credentials.json
