@@ -7,7 +7,7 @@ import base64
 import argparse
 import sys
 
-def get_args():
+def _get_args():
     parser = argparse.ArgumentParser(description="Send email using the gmail API")
     parser.add_argument('message', help="the body of the message to send")
     parser.add_argument('to', nargs="+", help="the recipiants of the message")
@@ -18,22 +18,22 @@ def get_args():
 
     return args['to'], args['message'], args['subject'], args['credentials']
 
-def create_message(to, subject, body):
+def _create_message(to, subject, body):
     message = MIMEText(body)
     message['to'] = to
     message['subject'] = subject
     return {'raw': base64.urlsafe_b64encode(message.as_string())}
 
-def send_message(service, message):
+def _send_message(service, message):
     try:
         response = service.users().messages().send(userId="me", body=message).execute()
     except errors.HttpError, error:
         print "An error occured:", error
 
-def send(to_list, message_body, subject, credentials_file):
+def dispact_messages(to_list, message_body, subject, credentials_file):
     messages = []
     for person in to_list:
-        messages.append(create_message(person, subject, message_body))
+        messages.append(_create_message(person, subject, message_body))
 
     storage = Storage(credentials_file)
     credentials = storage.get()
@@ -42,12 +42,12 @@ def send(to_list, message_body, subject, credentials_file):
     gmail_service = build('gmail', 'v1', http=http)
 
     for message in messages:
-        send_message(gmail_service, message)
+        _send_message(gmail_service, message)
 
 def main():
-    to_list, message_body, subject, credentials_file = get_args()
+    to_list, message_body, subject, credentials_file = _get_args()
 
-    send(to_list, message_body, subject, credentials_file)
+    dispact_messages(to_list, message_body, subject, credentials_file)
 
 if __name__ == "__main__":
     main()
